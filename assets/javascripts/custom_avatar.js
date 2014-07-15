@@ -41,7 +41,7 @@ Handlebars.registerHelper('avatar', function(user, options) {
       size: options.hash.imageSize,
       extraClasses: Em.get(user, 'extras') || options.hash.extraClasses,
       title: title || username,
-      avatarTemplate: avatarTemplate
+      avatarTemplate: Handlebars.Utils.escapeExpression(avatarTemplate)
     }));
   } else {
     return '';
@@ -53,7 +53,7 @@ Em.Handlebars.helper('bound-avatar', function(user, size, uploadId) {
 
   return new Handlebars.SafeString(Discourse.Utilities.avatarImg({
     size: size,
-    avatarTemplate: avatarTemplate
+    avatarTemplate: Handlebars.Utils.escapeExpression(avatarTemplate)
   }));
 }, 'avatar_template');
 

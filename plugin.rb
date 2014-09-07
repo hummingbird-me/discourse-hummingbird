@@ -57,6 +57,7 @@ end
 
 ### Use forum-static.hummingbird.me cache.
 after_initialize do
+  require 'file_store/s3_store'
   FileStore::S3Store.class_eval do
     def absolute_base_url
       "//forum-static.hummingbird.me"

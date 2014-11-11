@@ -16,4 +16,11 @@ after_initialize do
       avatar_template_url.gsub("{size}", "small")
     end
   end
+
+  AvatarLookup.class_eval do
+    private
+    def self.lookup_columns
+      [:id, :email, :username, :avatar_template]
+    end
+  end
 end

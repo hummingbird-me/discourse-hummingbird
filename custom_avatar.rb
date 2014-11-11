@@ -20,7 +20,7 @@ after_initialize do
   AvatarLookup.class_eval do
     private
     def self.lookup_columns
-      [:id, :email, :username, :avatar_template]
+      [:id, :email, :username, :uploaded_avatar_id, :avatar_template]
     end
   end
 end

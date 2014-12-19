@@ -26,7 +26,7 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
       token = nil
       begin
         token = JWT.decode(@request.cookies[TOKEN_COOKIE], JWT_SECRET)
-      rescue JWT::DecodeError, JWT::ExpiredSignature
+      rescue JWT::DecodeError
       end
       if token
         current_user = User.where(auth_token: token['sub'].to_s).first

@@ -95,7 +95,7 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
   end
 
   def self.create_or_update_user(user_id)
-    user_data = JSON.parse open("https://hummingbird.me/api/v1/users/#{user_id}?secret=#{ENV['SYNC_SECRET']}")
+    user_data = JSON.parse open("https://hummingbird.me/api/v1/users/#{user_id}?secret=#{ENV['SYNC_SECRET']}").read
 
     user = nil
     if user_data["name"]

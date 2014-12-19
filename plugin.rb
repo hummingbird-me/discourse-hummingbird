@@ -37,11 +37,9 @@ after_initialize do
     class SyncController < ActionController::Base
       def sync
         if params[:secret] == ENV["SYNC_SECRET"]
-          HummingbirdCurrentUserProvider.create_or_update_user(params[:auth_token])
-          render text: "Hello world"
-        else
-          render text: "Goodbye world"
+          HummingbirdCurrentUserProvider.create_or_update_user(params[:user_id])
         end
+        render text: "User may have been synced!"
       end
     end
   end

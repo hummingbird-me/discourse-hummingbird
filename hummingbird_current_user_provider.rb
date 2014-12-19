@@ -1,7 +1,9 @@
 class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
-  COOKIE_NAME       = "auth_token"
-  CURRENT_USER_KEY  = "_DISCOURSE_CURRENT_USER"
-  API_KEY           = "_DISCOURSE_API"
+  OLD_COOKIE = "auth_token".freeze
+  TOKEN_COOKIE = "token".freeze
+  CURRENT_USER_KEY = "_DISCOURSE_CURRENT_USER".freeze
+  API_KEY = "_DISCOURSE_API".freeze
+  JWT_SECRET = ENV["JWT_SECRET"].freeze
 
   def initialize(env)
     @env = env
@@ -10,25 +12,36 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
 
   # May be used early on in the middleware by Discourse to optimize caching.
   def has_auth_cookie?
-    cookie = @request.cookies[COOKIE_NAME]
-    !cookie.nil?
+    [OLD_COOKIE, TOKEN_COOKIE].any? {|x| !@request.cookies[x].nil? }
   end
 
   # The current user.
   def current_user
     return @env[CURRENT_USER_KEY] if @env.key?(CURRENT_USER_KEY)
 
-    auth_token = @request.cookies[COOKIE_NAME]
-    auth_token = nil if auth_token and auth_token.strip.length == 0
 
     current_user = nil
 
-    if auth_token
-      current_user = User.where(auth_token: auth_token).first
-      unless current_user
-        # User is accessing the forum for the first time. Need to create their user
-        # account.
-        current_user = HummingbirdCurrentUserProvider.create_or_update_user(auth_token)
+    # Try to sign in using JWT token
+    if @request.cookies[TOKEN_COOKIE]
+      token = nil
+      begin
+        token = JWT.decode(@request.cookies[TOKEN_COOKIE], JWT_SECRET)
+      rescue JWT::DecodeError, JWT::ExpiredSignature
+      end
+      if token
+        current_user = User.where(auth_token: token['sub'].to_s).first
+        if current_user.nil?
+          current_user = HummingbirdCurrentUserProvider.create_or_update_user(token['sub'])
+        end
+      end
+    end
+
+    # Try to sign in using the old token
+    if current_user.nil?
+      auth_token = @request.cookies[OLD_COOKIE]
+      if auth_token && auth_token.strip.length > 0
+        current_user = User.where(auth_token: auth_token).first
       end
     end
 
@@ -55,7 +68,6 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
           elsif api_username
             current_user = User.where(username_lower: api_username.downcase).first
           end
-
         end
       end
     end
@@ -63,8 +75,8 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
     @env[CURRENT_USER_KEY] = current_user
   end
 
-  # Log a user on, set cookies and session etc. We don't need this since our users
-  # log in via the main application, not Discourse.
+  # Log a user on, set cookies and session etc. We don't need this since our 
+  # users log in via the main application, not Discourse.
   def log_on_user(user, session, cookie)
     raise NotImplementedError
   end
@@ -77,21 +89,27 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
 
   # Log off user.
   def log_off_user(session, cookies)
-    cookies.delete COOKIE_NAME, domain: ".hummingbird.me"
+    [OLD_COOKIE, TOKEN_COOKIE].each do |cookie|
+      cookies.delete cookie, domain: ".hummingbird.me"
+    end
+    @env[CURRENT_USER_KEY] = nil
   end
 
-  def self.create_or_update_user(auth_token)
-    user_data = JSON.parse open("https://hummingbird.me/api/v1/users/me?auth_token=#{auth_token}").read
+  def self.create_or_update_user(user_id)
+    user_data = JSON.parse open("https://hummingbird.me/api/v1/users/#{user_id}?secret=#{ENV['SYNC_SECRET']}")
+
     user = nil
     if user_data["name"]
-      user = User.where(auth_token: auth_token).first || User.where(username_lower: user_data["name"].downcase).first || User.where(email: user_data["email"]).first || User.new
+      user = User.where(auth_token: user_id.to_s).first || User.where(username_lower: user_data["name"].downcase).first || User.where(email: user_data["email"]).first || User.new
+
       user.username = user.name = user_data["name"]
       user.email = user_data["email"]
       user.avatar_template = user_data["avatar"].gsub(/users\/avatars\/(\d+\/\d+\/\d+)\/\w+/, "users/avatars/\\1/{size}")
       user.activate
-      user.auth_token = auth_token
+      user.auth_token = user_id
       user.save!
     end
+
     user
   rescue
     nil

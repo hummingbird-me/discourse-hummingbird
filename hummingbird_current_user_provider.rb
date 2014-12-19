@@ -25,7 +25,7 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
     if @request.cookies[TOKEN_COOKIE]
       token = nil
       begin
-        token = JWT.decode(@request.cookies[TOKEN_COOKIE], JWT_SECRET)
+        token = JWT.decode(@request.cookies[TOKEN_COOKIE], JWT_SECRET).first
       rescue JWT::DecodeError
       end
       if token

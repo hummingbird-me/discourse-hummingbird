@@ -19,7 +19,6 @@ class HummingbirdCurrentUserProvider < Auth::CurrentUserProvider
   def current_user
     return @env[CURRENT_USER_KEY] if @env.key?(CURRENT_USER_KEY)
 
-
     current_user = nil
 
     # Try to sign in using JWT token

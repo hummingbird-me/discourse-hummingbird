@@ -52,53 +52,18 @@
 
     {{home-logo minimized=showExtraInfo}}
 
-    {{#if showExtraInfo}}
-      <div class="extra-info-wrapper">
-        <div class="extra-info">
-          {{#if showStarButton}}
-            <a {{bind-attr class=":star topic.starred:starred"}} {{action toggleStar}} href='#' {{bind-attr title="topic.starTooltip"}}></a>
-          {{/if}}
-          <h1>
-            {{#if topic.isPrivateMessage}}
-              <span class="private-message-glyph">{{icon envelope}}</span>
-            {{/if}}
-          {{#if topic.category.parentCategory}}
-            {{bound-category-link topic.category.parentCategory}}
-          {{/if}}
-          {{bound-category-link topic.category}}
-          {{#if topic.details.loaded}}
-            {{topic-status topic=topic}}
-            <a class='topic-link' href='{{unbound topic.url}}' {{action jumpToTopPost}}>{{{topic.fancy_title}}}</a>
-          {{else}}
-            {{#if topic.errorLoading}}
-              {{topic.errorTitle}}
-            {{else}}
-              {{i18n topic.loading}}
-            {{/if}}
-          {{/if}}
-          </h1>
-        </div>
-      </div>
-    {{/if}}
-
     <div class='panel clearfix'>
-      {{#unless showExtraInfo}}
-        <div class='current-username'>
-          {{#if currentUser}}
-            <span class='username'><a {{bind-attr href="currentUser.path"}}>{{currentUser.displayName}}</a></span>
-          {{/if}}
-        </div>
-      {{/unless}}
       {{#unless currentUser}}
-        <button {{action showLogin}} class='btn btn-primary btn-small login-button'>
-          {{icon user}} {{i18n log_in}}
-        </button>
+        {{#if showSignUpButton}}
+          {{d-button action="showCreateAccount" class="btn-primary btn-small sign-up-button" label="sign_up"}}
+        {{/if}}
+        {{d-button action="showLogin" class="btn-primary btn-small login-button" icon="user" label="log_in"}}
       {{/unless}}
       <ul class='icons clearfix' role='navigation'>
         {{#if currentUser}}
           <li class='notifications'>
-            <a class='icon' href="#" {{action showNotifications target="view"}} data-notifications="notifications-dropdown" id='user-notifications' title='{{i18n notifications.title}}'>
-              {{icon comment label="notifications.title"}}
+            <a class='icon' href="#" {{action "showNotifications" target="view"}} data-notifications="notifications-dropdown" id='user-notifications' title='{{i18n 'notifications.title'}}'>
+              {{fa-icon "comment" label="notifications.title"}}
             </a>
             {{#if currentUser.unread_notifications}}
               <a href='#' class='badge-notification unread-notifications'>{{currentUser.unread_notifications}}</a>
@@ -109,40 +74,41 @@
           </li>
         {{/if}}
         <li>
-          {{#if Discourse.loginRequired}}
-            <a id='search-button' class='icon expand' href='#' aria-hidden="true" {{action showLogin}}>
-              {{icon search}}
+          {{#if loginRequired}}
+            <a id='search-button' class='icon expand' href='#' aria-hidden="true" {{action "showLogin"}}>
+              {{fa-icon "search"}}
             </a>
           {{else}}
             <a id='search-button'
                class='icon expand'
                href='#'
                data-dropdown="search-dropdown"
-               title='{{i18n search.title}}'>
-               {{icon search label="search.title"}}
+               title='{{i18n 'search.title'}}'>
+               {{fa-icon "search" label="search.title"}}
             </a>
           {{/if}}
         </li>
         <li class='categories dropdown'>
-          {{#if Discourse.loginRequired}}
+          {{#if loginRequired}}
             <a class='icon'
                href="#"
                aria-hidden="true"
-               {{action showLogin}}>
-               {{icon bars}}
+               id="site-map"
+               {{action "showLogin"}}>
+               {{fa-icon "bars"}}
             </a>
           {{else}}
             <a class='icon'
                data-dropdown="site-map-dropdown"
                data-render="renderSiteMap"
                href="#"
-               title='{{i18n site_map}}'
+               title='{{i18n 'site_map'}}'
                id="site-map">
-               {{icon bars label="site_map"}}
+               {{fa-icon "bars" label="site_map"}}
             </a>
           {{/if}}
           {{#if currentUser.site_flagged_posts_count}}
-            <a href='/admin/flags/active' title='{{i18n notifications.total_flagged}}' class='badge-notification flagged-posts'>{{currentUser.site_flagged_posts_count}}</a>
+            <a href='/admin/flags/active' title='{{i18n 'notifications.total_flagged'}}' class='badge-notification flagged-posts'>{{currentUser.site_flagged_posts_count}}</a>
           {{/if}}
         </li>
         {{#if currentUser}}
@@ -151,7 +117,7 @@
                data-dropdown="user-dropdown"
                data-render="renderUserDropdown"
                href="#"
-               title='{{i18n user.avatar.title}}'
+               title='{{i18n 'user.avatar.title'}}'
                id="current-user">
                  {{bound-avatar currentUser "medium"}}
             </a>
@@ -159,17 +125,21 @@
         {{/if}}
       </ul>
 
-      {{render "search"}}
+      {{#if view.renderDropdowns}}
+        {{render "search"}}
+        {{render "notifications" notifications}}
 
-      {{render "notifications" notifications}}
+        {{#if view.renderSiteMap}}
+          {{render "site-map"}}
+        {{/if}}
 
-      {{#if view.renderSiteMap}}
-        {{render "siteMap"}}
+        {{render "user-dropdown"}}
       {{/if}}
-
-      {{render "user-dropdown"}}
-
     </div>
+
+    {{#if showExtraInfo}}
+      {{header-extra-info topic=topic}}
+    {{/if}}
   </div>
 </div>
 

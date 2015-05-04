@@ -6,7 +6,7 @@
 plugins_dir = File.expand_path(File.dirname(__FILE__))
 
 ### Hummingbird login
-gem 'jwt', '1.0.0'
+gem 'jwt', '1.3.0'
 load File.expand_path("../hummingbird_current_user_provider.rb", __FILE__)
 Discourse.current_user_provider = HummingbirdCurrentUserProvider
 register_asset "javascripts/custom_auth.js"

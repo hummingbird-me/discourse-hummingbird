@@ -15,11 +15,7 @@ Discourse.Utilities.avatarUrl = function(template, size) {
   }
 }
 
-Handlebars.registerHelper('avatar', function(user, options) {
-  if (typeof user === 'string') {
-    user = Ember.Handlebars.get(this, user, options);
-  }
-
+Ember.Handlebars.registerBoundHelper('avatar', function(user, options) {
   if (user) {
     var username = Em.get(user, 'username');
     if (!username) username = Em.get(user, options.hash.usernamePath);

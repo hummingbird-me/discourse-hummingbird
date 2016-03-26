@@ -6,8 +6,7 @@ function hasPro(expiry) {
 
 export default {
   name: 'add-pro-badge',
-  initialize() {
-
+  initialize () {
     withPluginApi('0.1', function (api) {
       api.decorateWidget('poster-name:after', (dec) => {
         const customFields = dec.attrs.userCustomFields || {};

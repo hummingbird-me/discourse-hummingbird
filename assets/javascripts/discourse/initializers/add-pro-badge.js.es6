@@ -9,9 +9,9 @@ export default {
   initialize () {
     withPluginApi('0.1', function (api) {
       api.decorateWidget('poster-name:after', (dec) => {
-        const customFields = dec.attrs.userCustomFields || {};
+        const customFields = (dec.attrs && dec.attrs.userCustomFields) || {};
 
-        if (hasPro(customFields.proExpiresAt)) {
+        if (customFields.proExpiresAt && hasPro(customFields.proExpiresAt)) {
           return dec.h('span.mini-badge', 'pro');
         }
       });

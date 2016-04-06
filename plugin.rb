@@ -3,7 +3,6 @@
 # version: 0.1
 # authors: Hummingbird Media
 
-require_dependency 'user'
 class ::User
   def self.whitelisted_user_custom_fields(guardian)
     (super(guardian) + 'pro_expires_at').uniq

@@ -47,11 +47,7 @@ class Onebox::Engine::HummingbirdOnebox
           </div>
           <div class="hb-onebox-synopsis">
             #{media['synopsis']}
-            <a class="hb-onebox-readmore">
-              read
-              <span class="hb-onebox-readmore-more">more</span>
-              <span class="hb-onebox-readmore-less">less</span>
-            </a>
+            #{readmore_html}
           </div>
           <div class="hb-onebox-genres">
             #{genres_html}
@@ -128,5 +124,20 @@ class Onebox::Engine::HummingbirdOnebox
     media['genres'].sort.map do |g|
       "<div class=\"hb-onebox-genre\">#{g}</div>"
     end.join
+  end
+
+  # Bigger than a tweet, smaller than a bread basket
+  def readmore?
+    media['synopsis'].length > 140
+  end
+
+  def readmore_html
+    !readmore? ? '' : <<-HTML
+      <a class="hb-onebox-readmore">
+        read
+        <span class="hb-onebox-readmore-more">more</span>
+        <span class="hb-onebox-readmore-less">less</span>
+      </a>
+    HTML
   end
 end

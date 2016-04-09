@@ -3,7 +3,8 @@
 # version: 0.2
 # authors: Hummingbird Media
 
-register_asset "stylesheets/hummingbird_onebox.scss"
+register_asset 'stylesheets/hummingbird_onebox.scss'
+register_asset 'stylesheets/hummingbird_onebox_mobile.scss', :mobile
 
 class Onebox::Engine::HummingbirdOnebox
   include Onebox::Engine

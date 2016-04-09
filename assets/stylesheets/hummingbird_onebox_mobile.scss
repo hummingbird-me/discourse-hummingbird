@@ -1,0 +1,13 @@
+aside.hb-onebox {
+  flex-direction: column;
+}
+.hb-onebox-poster {
+  align-self: stretch;
+  text-align: center;
+  padding: 21px 23px 0 23px;
+
+  &>img {
+    border-radius: 2px;
+    max-width: 150px;
+  }
+}

@@ -35,9 +35,7 @@ class Onebox::Engine::HummingbirdOnebox
     <<-HTML
       <aside class="onebox hb-onebox hb-onebox-#{type}"
              data-media-type="#{type}" data-media-slug="#{slug}">
-        <div class="hb-onebox-poster">
-          <img src="#{media['poster_image']}">
-        </div>
+        #{poster_html}
         <div class="hb-onebox-info">
           <h1 class="hb-onebox-header">
             <a href="#{link}" target="_blank" class="track-link">
@@ -97,6 +95,19 @@ class Onebox::Engine::HummingbirdOnebox
 
   def title
     media['romaji_title']
+  end
+
+  def poster_image
+    image = media['poster_image']
+    (image == '/assets/missing-anime-cover.jpg') ? nil : image
+  end
+
+  def poster_html
+    poster_image.nil? ? '' : <<-HTML
+      <div class="hb-onebox-poster">
+        <img src="#{poster_image}">
+      </div>
+    HTML
   end
 
   def average_rating

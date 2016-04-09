@@ -32,8 +32,8 @@ class Onebox::Engine::HummingbirdOnebox
     return "<a href=\"#{link}\">#{link}</a>" if media.nil?
 
     <<-HTML
-      <aside class="hb-onebox hb-onebox-#{type}" data-media-type="#{type}"
-                                                 data-media-slug="#{slug}">
+      <aside class="onebox hb-onebox hb-onebox-#{type}"
+             data-media-type="#{type}" data-media-slug="#{slug}">
         <div class="hb-onebox-poster">
           <img src="#{media['poster_image']}">
         </div>

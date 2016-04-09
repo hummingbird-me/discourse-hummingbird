@@ -112,9 +112,12 @@ export default {
         $('.hb-onebox', post).each((i, ob) => {
           const $ob = $(ob),
                 type = $ob.data('mediaType'),
-                slug = $ob.data('mediaSlug');
+                slug = $ob.data('mediaSlug'),
+                previewMode = $ob.data('previewMode');
 
-          initLibraryEntry($ob, type, slug);
+          if (!previewMode) {
+            initLibraryEntry($ob, type, slug);
+          }
           initReadMoreToggle($ob);
         });
       });

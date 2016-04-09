@@ -69,6 +69,10 @@ class Onebox::Engine::HummingbirdOnebox
     HTML
   end
 
+  def placeholder_html
+    to_html.gsub('<aside ', '<aside data-preview-mode="true" ')
+  end
+
   private
 
   def type

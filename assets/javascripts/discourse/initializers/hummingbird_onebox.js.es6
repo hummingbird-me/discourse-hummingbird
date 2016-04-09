@@ -22,15 +22,22 @@ function getLibraryEntry(type, slug) {
     url: `https://hummingbird.me/full_${type}/${slug}.json`,
     xhrFields: { withCredentials: true }
   }).then(function (data) {
-    const libraryEntryId = data.full_anime.library_entry_id;
-    return data.library_entries.find((x) => x.id === libraryEntryId);
+    if (type === 'anime') {
+      const libraryEntryId = data.full_anime.library_entry_id;
+      return data.library_entries.find((x) => x.id === libraryEntryId)
+    } else if (type === 'manga') {
+      const libraryEntryId = data.full_manga.manga_library_entry_id;
+      return data.manga_library_entries.find((x) => x.id === libraryEntryId)
+    }
   })
 }
 
-function changeLibraryEntry(entry, status) {
+function changeLibraryEntry(type, entry, status) {
+  const path = (type === 'manga') ? 'manga_library_entries' : 'library_entries';
+
   return $.ajax({
     method: 'PUT',
-    url: `https://hummingbird.me/library_entries/${entry.id}`,
+    url: `https://hummingbird.me/${path}/${entry.id}`,
     xhrFields: { withCredentials: true },
     body: JSON.stringify({
       library_entry: Object.assign(entry, { status })
@@ -55,7 +62,7 @@ function initLibraryEntry(ob, type, slug) {
           target.removeClass('hb-onebox-library-entry-errored');
           currentHolder.hide();
           spinner.show();
-          changeLibraryEntry(entry, newStatus).then(() => {
+          changeLibraryEntry(type, entry, newStatus).then(() => {
             spinner.hide();
             currentHolder.text(newStatus).show();
           }, () => {

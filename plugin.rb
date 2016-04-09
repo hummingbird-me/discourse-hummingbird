@@ -29,6 +29,10 @@ class Onebox::Engine::HummingbirdOnebox
     "https://hummingbird.me/full_#{type}/#{slug}.json"
   end
 
+  def link
+    super.downcase
+  end
+
   def to_html
     return "<a href=\"#{link}\">#{link}</a>" if media.nil?
 
@@ -75,7 +79,7 @@ class Onebox::Engine::HummingbirdOnebox
   end
 
   def slug
-    MATCH_REGEX.match(@url)['slug']
+    MATCH_REGEX.match(@url)['slug'].downcase
   end
 
   def media

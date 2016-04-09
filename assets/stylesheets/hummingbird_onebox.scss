@@ -1,11 +1,17 @@
 $onebox-background: #4B5361;
 
-.hb-onebox {
+aside.hb-onebox {
   background: $onebox-background;
   display: flex;
   min-height: 246px;
   max-width: 600px;
   border-radius: 4px;
+  border: none;
+  padding: 0;
+
+  .badge-notification.clicks {
+    background-color: #5E6674;
+  }
 }
 .hb-onebox-poster {
   width: 170px;

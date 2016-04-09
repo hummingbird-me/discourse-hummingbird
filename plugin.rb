@@ -1,6 +1,6 @@
-# name: hummingbird-onebox
+# name: hummingbird
 # about: discourse customizations for hummingbird
-# version: 0.1
+# version: 0.2
 # authors: Hummingbird Media
 
 register_asset "stylesheets/hummingbird_onebox.scss"
@@ -43,7 +43,7 @@ class Onebox::Engine::HummingbirdOnebox
               #{media['romaji_title']}
             </a>
           </h1>
-          <div class="hb-onebox-rating" title="#{media['bayesian_rating']}">
+          <div class="hb-onebox-rating" title="#{average_rating}">
             #{stars_html}
           </div>
           <div class="hb-onebox-synopsis">
@@ -94,8 +94,13 @@ class Onebox::Engine::HummingbirdOnebox
     media['romaji_title']
   end
 
+  def average_rating
+    media['bayesian_rating']
+  end
+
   def stars_html
-    rating = (media['bayesian_rating'] / 0.5).round * 0.5
+    return '' if average_rating.blank?
+    rating = (average_rating / 0.5).round * 0.5
     whole_stars = '<i class="fa fa-star"></i>' * rating.floor
     half_stars = '<i class="fa fa-star-half-o"></i>' * (rating % 1 / 0.5)
     empty_stars = '<i class="fa fa-star-o"></i>' * (5 - rating).floor

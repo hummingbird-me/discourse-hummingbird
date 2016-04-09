@@ -36,10 +36,12 @@ function changeLibraryEntry(type, entry, status) {
   const path = (type === 'manga') ? 'manga_library_entries' : 'library_entries';
 
   return $.ajax({
+    contentType: 'application/json',
+    dataType: 'json',
     method: 'PUT',
     url: `https://hummingbird.me/${path}/${entry.id}`,
     xhrFields: { withCredentials: true },
-    body: JSON.stringify({
+    data: JSON.stringify({
       library_entry: Object.assign(entry, { status })
     })
   });

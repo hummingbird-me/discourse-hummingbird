@@ -1,0 +1,114 @@
+import { withPluginApi } from 'discourse/lib/plugin-api';
+
+const STATUSES = {
+  anime: [
+    'Currently Watching',
+    'Plan to Watch',
+    'Completed',
+    'On Hold',
+    'Dropped'
+  ],
+  manga: [
+    'Currently Reading',
+    'Plan to Read',
+    'Completed',
+    'On Hold',
+    'Dropped'
+  ]
+}
+
+function getLibraryEntry(type, slug) {
+  return $.ajax({
+    url: `https://hummingbird.me/full_${type}/${slug}.json`,
+    xhrFields: { withCredentials: true }
+  }).then(function (data) {
+    const libraryEntryId = data.full_anime.library_entry_id;
+    return data.library_entries.find((x) => x.id === libraryEntryId);
+  })
+}
+
+function changeLibraryEntry(entry, status) {
+  return $.ajax({
+    method: 'PUT',
+    url: `https://hummingbird.me/library_entries/${entry.id}`,
+    xhrFields: { withCredentials: true },
+    body: JSON.stringify({
+      library_entry: Object.assign(entry, { status })
+    })
+  });
+}
+
+function initLibraryEntry(ob, type, slug) {
+  const target = $('.hb-onebox-library-entry', ob);
+  const spinner = $('.hb-spinner', target);
+
+  getLibraryEntry(type, slug).then(entry => {
+    if (entry) {
+      spinner.hide();
+      // Generate a place to cram the current status
+      const currentHolder = $('<span>').text(entry.status).appendTo(target);
+      $('<b class="caret"></b>').appendTo(target);
+      // Generate the menu and bind it
+      generateLibraryEntryMenu(type, entry).on('click', (e) => {
+        const newStatus = $(e.target).data('status');
+        if (newStatus) {
+          target.removeClass('hb-onebox-library-entry-errored');
+          currentHolder.hide();
+          spinner.show();
+          changeLibraryEntry(entry, newStatus).then(() => {
+            spinner.hide();
+            currentHolder.text(newStatus).show();
+          }, () => {
+            spinner.hide();
+            target.addClass('hb-onebox-library-entry-errored');
+            currentHolder.text('Oops! Failed to save').show();
+          });
+        }
+      }).appendTo(target);
+      // And make the menu open!
+      target.on('click', () => {
+        target.toggleClass('hb-onebox-library-entry-open');
+      })
+    } else {
+      target.remove();
+    }
+  })
+}
+
+function generateLibraryEntryMenu(type, entry) {
+  const list = $('<ul class="hb-onebox-library-entry-menu">');
+  const statuses = STATUSES[type];
+
+  statuses.forEach((status) => {
+    $('<li>').text(status).data('status', status).appendTo(list);
+  });
+
+  return list;
+}
+
+function initReadMoreToggle(ob) {
+  const synopsis = $('.hb-onebox-synopsis', ob),
+        readmore = $('.hb-onebox-readmore', ob);
+
+  readmore.on('click', e => {
+    synopsis.toggleClass('hb-onebox-synopsis-open');
+  })
+}
+
+export default {
+  name: 'apply-hb-onebox',
+  initialize() {
+    withPluginApi('0.2', api => {
+      api.decorateCooked((post) => {
+        $('.hb-onebox', post).each((i, ob) => {
+          const $ob = $(ob),
+                type = $ob.data('mediaType'),
+                slug = $ob.data('mediaSlug');
+
+          initLibraryEntry($ob, type, slug);
+          initReadMoreToggle($ob);
+        });
+      });
+    });
+  }
+};

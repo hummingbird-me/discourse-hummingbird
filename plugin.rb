@@ -132,7 +132,7 @@ class Onebox::Engine::HummingbirdOnebox
 
   # Bigger than a tweet, smaller than a bread basket
   def readmore?
-    media['synopsis'].length > 140
+    media['synopsis'].length > 350
   end
 
   def readmore_html

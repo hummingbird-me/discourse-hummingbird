@@ -41,26 +41,33 @@ function getLibraryEntry(type, slug) {
 }
 
 function changeLibraryEntry(type, entry, status) {
-  const path = (type === 'manga') ? 'manga_library_entries' : 'library_entries';
+  const coll = (type === 'manga') ? 'manga_library_entries' : 'library_entries';
+  const key = (type === 'manga') ? 'manga_library_entry' : 'library_entry';
+  const payload = {};
+  payload[key] = Object.assign(entry, {status});
+
+  const path =  entry.id ? `${coll}/${entry.id}` : coll;
 
   return $.ajax({
     contentType: 'application/json',
     dataType: 'json',
-    method: 'PUT',
-    url: `https://hummingbird.me/${path}/${entry.id}`,
+    method: entry.id ? 'PUT' : 'POST',
+    url: `https://hummingbird.me/${path}`,
     xhrFields: { withCredentials: true },
-    data: JSON.stringify({
-      library_entry: Object.assign(entry, { status })
-    })
-  });
+    data: JSON.stringify(payload)
+  }).then((res) => res[key]);
 }
 
 function initLibraryEntry(ob, type, slug) {
   const target = $('.hb-onebox-library-entry', ob);
   const spinner = $('.hb-spinner', target);
 
-  getLibraryEntry(type, slug).then(entry => {
-    if (entry) {
+  if (isLoggedIn()) {
+    getLibraryEntry(type, slug).then(entry => {
+      if (!entry) {
+        entry = { status: 'Add to Library' }
+        entry[`${type}_id`] = slug;
+      }
       spinner.hide();
       // Generate a place to cram the current status
       const currentHolder = $('<span>').text(entry.status).appendTo(target);
@@ -72,7 +79,8 @@ function initLibraryEntry(ob, type, slug) {
           target.removeClass('hb-onebox-library-entry-errored');
           currentHolder.hide();
           spinner.show();
-          changeLibraryEntry(type, entry, newStatus).then(() => {
+          changeLibraryEntry(type, entry, newStatus).then((res) => {
+            entry = res;
             spinner.hide();
             currentHolder.text(newStatus).show();
           }, () => {

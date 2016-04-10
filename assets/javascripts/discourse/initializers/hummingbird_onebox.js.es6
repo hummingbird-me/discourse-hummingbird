@@ -17,6 +17,14 @@ const STATUSES = {
   ]
 }
 
+var loggedIn;
+function isLoggedIn() {
+  if (loggedIn == null) loggedIn = !!PreloadStore.get('currentUser');
+  // I don't think this case is ever hit, but Just In Case™
+  if (loggedIn == null) loggedIn = !!$('.current-user').length;
+  return loggedIn;
+}
+
 function getLibraryEntry(type, slug) {
   return $.ajax({
     url: `https://hummingbird.me/full_${type}/${slug}.json`,
@@ -78,10 +86,13 @@ function initLibraryEntry(ob, type, slug) {
       target.on('click', () => {
         target.toggleClass('hb-onebox-library-entry-open');
       })
-    } else {
-      target.remove();
-    }
-  })
+    })
+  } else {
+    const link = $('<a href="https://hummingbird.me/sign-up" target="_blank">');
+    link.addClass('hb-onebox-library-entry no-track-link')
+    target.replaceWith(link);
+    $('<span>').text(`Track this ${type} with Hummingbird`).appendTo(link);
+  }
 }
 
 function generateLibraryEntryMenu(type, entry) {

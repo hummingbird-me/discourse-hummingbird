@@ -89,8 +89,10 @@ h1.hb-onebox-header {
   margin-bottom: 4px;
 }
 .hb-onebox-library-entry {
+  $green: #00A186;
+
   position: relative;
-  background-color: #00A186;
+  background-color: $green;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +103,18 @@ h1.hb-onebox-header {
   cursor: pointer;
   height: 20px;
   min-width: 100px;
+  transition: .1s background-color;
 
+  &:visited {
+    color: white;
+  }
+  &:hover {
+    color: white;
+    background-color: darken($green, 3%);
+  }
+  &> span {
+    display: inline;
+  }
   .caret {
     border-top-color: white;
   }
